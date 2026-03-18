@@ -14,7 +14,7 @@ export function FinalCTA() {
             <span className="text-gradient-gold">ближайшую выставку</span>
           </h2>
           <p className="text-lg text-[#71717A] mb-10 max-w-2xl mx-auto">
-            BEE Forum в Бишкеке (7 апреля) и Canton Fair в Гуанчжоу
+            BEE-TOGETHER в Бишкеке (08-09 апреля) и Canton Fair в Гуанчжоу
             (15 апреля — 5 мая). Приём заявок уже открыт.
           </p>
 
