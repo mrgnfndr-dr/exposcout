@@ -72,11 +72,11 @@ export function Hero() {
               </span>
             </div>
             <h3 className="text-white font-semibold text-lg mb-3 group-hover:text-gold transition-colors">
-              BEE Fashion & Textile Forum
+              BEE-TOGETHER
             </h3>
             <div className="flex flex-col gap-1.5 text-white/40 text-sm">
               <div className="flex items-center gap-2">
-                <Calendar className="w-4 h-4 shrink-0" />7 апреля 2026
+                <Calendar className="w-4 h-4 shrink-0" />08-09 апреля 2026
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 shrink-0" />
