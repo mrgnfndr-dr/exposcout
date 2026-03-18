@@ -9,8 +9,8 @@ import {
 
 const EVENTS = [
   {
-    name: "BEE Fashion & Textile Forum 2026",
-    dates: "7 апреля 2026",
+    name: "BEE-TOGETHER",
+    dates: "08-09 апреля 2026",
     city: "Бишкек, Кыргызстан",
     venue: "Этнокомплекс «Дасмия»",
     description:
