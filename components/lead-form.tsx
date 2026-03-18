@@ -197,7 +197,7 @@ export function LeadForm() {
                 </label>
                 <div className="flex flex-col sm:flex-row gap-3">
                   {[
-                    { id: "bee", label: "BEE Forum (Бишкек)" },
+                    { id: "bee", label: "BEE TOGETHER (Бишкек)" },
                     { id: "canton", label: "Canton Fair (Китай)" },
                   ].map((ev) => (
                     <button
