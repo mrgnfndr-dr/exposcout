@@ -30,25 +30,55 @@ export function LeadForm() {
         : [...prev.event, ev],
     }));
 
+  const eventLabels: Record<string, string> = {
+    bee: "BEE TOGETHER (Бишкек)",
+    canton: "Canton Fair (Китай)",
+  };
+
+  const supplierTypeLabels: Record<string, string> = {
+    oem: "OEM производитель",
+    odm: "ODM производитель",
+    "white-label": "White label",
+    trader: "Торговая компания / трейдер",
+    any: "Любой тип",
+  };
+
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
-    if (!form.name || !form.contact) return;
+
+    if (!form.name.trim() || !form.contact.trim()) {
+      return;
+    }
+
+    if (form._hp) {
+      return;
+    }
 
     setState("submitting");
+
     try {
+      const selectedExhibitions = form.event
+        .map((id) => eventLabels[id] || id)
+        .join(", ");
+
+      const selectedSupplierType =
+        supplierTypeLabels[form.supplierType] || form.supplierType;
+
       const res = await fetch("/api/lead", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          name: form.name,
-          email: form.contact,
-          company: form.company,
-          role: form.supplierType,
-          message: `Категория: ${form.category}\nВыставки: ${form.event.join(", ")}\nТип поставщика: ${form.supplierType}\nКомментарии: ${form.comments}`,
-          lang: "ru",
+          name: form.name.trim(),
+          company: form.company.trim(),
+          contact: form.contact.trim(),
+          category: form.category.trim(),
+          exhibition: selectedExhibitions,
+          supplierType: selectedSupplierType,
+          details: form.comments.trim(),
           _hp: form._hp,
         }),
       });
+
       if (res.ok) {
         setState("success");
       } else {
@@ -82,7 +112,6 @@ export function LeadForm() {
     <section id="request" className="py-24 lg:py-32 bg-[#0A0A0C]">
       <div className="max-w-7xl mx-auto px-6">
         <div className="grid lg:grid-cols-2 gap-12 lg:gap-20 items-start">
-          {/* Left side — intro */}
           <Reveal>
             <div className="lg:sticky lg:top-28">
               <span className="inline-block px-4 py-1.5 bg-gold/10 text-gold rounded-full text-sm font-medium mb-4">
@@ -114,13 +143,11 @@ export function LeadForm() {
             </div>
           </Reveal>
 
-          {/* Right side — form */}
           <Reveal delay={200}>
             <form
               onSubmit={handleSubmit}
               className="bg-[#141416] rounded-2xl border border-white/[0.06] p-6 lg:p-8 space-y-5"
             >
-              {/* Honeypot */}
               <input
                 type="text"
                 name="_hp"
@@ -131,7 +158,6 @@ export function LeadForm() {
                 autoComplete="off"
               />
 
-              {/* Name */}
               <div>
                 <label className="block text-white/60 text-sm mb-2">
                   Имя <span className="text-red-400">*</span>
@@ -146,7 +172,6 @@ export function LeadForm() {
                 />
               </div>
 
-              {/* Company */}
               <div>
                 <label className="block text-white/60 text-sm mb-2">
                   Компания / магазин
@@ -160,7 +185,6 @@ export function LeadForm() {
                 />
               </div>
 
-              {/* Contact */}
               <div>
                 <label className="block text-white/60 text-sm mb-2">
                   Telegram / WhatsApp / Email{" "}
@@ -176,7 +200,6 @@ export function LeadForm() {
                 />
               </div>
 
-              {/* Category */}
               <div>
                 <label className="block text-white/60 text-sm mb-2">
                   Что вы продаёте / какую категорию ищете
@@ -190,7 +213,6 @@ export function LeadForm() {
                 />
               </div>
 
-              {/* Events */}
               <div>
                 <label className="block text-white/60 text-sm mb-3">
                   Какая выставка интересует
@@ -216,7 +238,6 @@ export function LeadForm() {
                 </div>
               </div>
 
-              {/* Supplier type */}
               <div>
                 <label className="block text-white/60 text-sm mb-2">
                   Тип поставщика
@@ -247,7 +268,6 @@ export function LeadForm() {
                 </select>
               </div>
 
-              {/* Comments */}
               <div>
                 <label className="block text-white/60 text-sm mb-2">
                   Дополнительно (необязательно)
@@ -261,7 +281,6 @@ export function LeadForm() {
                 />
               </div>
 
-              {/* Submit */}
               <button
                 type="submit"
                 disabled={state === "submitting"}
