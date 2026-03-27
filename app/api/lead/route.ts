@@ -1,77 +1,65 @@
 import { NextRequest, NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
 
-const DATA_DIR = path.join(process.cwd(), "data");
-const DATA_FILE = path.join(DATA_DIR, "leads.json");
-
-interface LeadEntry {
-  name: string;
-  email: string;
-  company: string;
-  role: string;
-  message: string;
-  lang: string;
-  createdAt: string;
-}
-
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
   try {
-    const body = await request.json();
-    const { name, email, company, role, message, _hp, lang } = body;
+    const body = await req.json();
 
-    // Honeypot check
-    if (_hp) {
-      return NextResponse.json({ ok: true });
-    }
+    const {
+      name,
+      contact,
+      category,
+      exhibition,
+      supplierType,
+      details,
+    } = body;
 
-    // Validation
-    if (!name || !email || !company || !role) {
+    const botToken = process.env.TELEGRAM_BOT_TOKEN;
+    const chatId = process.env.TELEGRAM_CHAT_ID;
+
+    if (!botToken || !chatId) {
       return NextResponse.json(
-        { error: "Missing required fields" },
-        { status: 400 }
+        { ok: false, error: "Missing Telegram env vars" },
+        { status: 500 }
       );
     }
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    const text =
+      `Новая заявка ExpoScout\n\n` +
+      `Имя: ${name || "-"}\n` +
+      `Контакт: ${contact || "-"}\n` +
+      `Категория: ${category || "-"}\n` +
+      `Выставка: ${exhibition || "-"}\n` +
+      `Тип поставщика: ${supplierType || "-"}\n` +
+      `Комментарий: ${details || "-"}`;
+
+    const telegramRes = await fetch(
+      `https://api.telegram.org/bot${botToken}/sendMessage`,
+      {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          chat_id: chatId,
+          text,
+        }),
+      }
+    );
+
+    const telegramData = await telegramRes.json();
+
+    if (!telegramRes.ok) {
       return NextResponse.json(
-        { error: "Invalid email" },
-        { status: 400 }
+        { ok: false, error: telegramData },
+        { status: 500 }
       );
     }
-
-    const entry: LeadEntry = {
-      name: String(name).slice(0, 200),
-      email: String(email).slice(0, 200),
-      company: String(company).slice(0, 200),
-      role: String(role).slice(0, 200),
-      message: String(message || "").slice(0, 1000),
-      lang: lang === "en" ? "en" : "ru",
-      createdAt: new Date().toISOString(),
-    };
-
-    // Ensure data directory exists
-    await fs.mkdir(DATA_DIR, { recursive: true });
-
-    // Read existing leads
-    let leads: LeadEntry[] = [];
-    try {
-      const raw = await fs.readFile(DATA_FILE, "utf-8");
-      leads = JSON.parse(raw);
-    } catch {
-      // File doesn't exist yet
-    }
-
-    leads.push(entry);
-
-    await fs.writeFile(DATA_FILE, JSON.stringify(leads, null, 2), "utf-8");
 
     return NextResponse.json({ ok: true });
-  } catch {
+  } catch (error) {
     return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
+      { ok: false, error: "Invalid request" },
+      { status: 400 }
     );
   }
 }
